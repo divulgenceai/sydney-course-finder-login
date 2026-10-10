@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Create a preview planning space for Sydney courses and compare your options.">
+  <title>Sydney Course Finder | Your planning space</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css?v=1">
+  <script src="./script.js?v=1" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Sydney Course Finder home and restart">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36"><rect x="3" y="3" width="30" height="30" rx="7" fill="#f3f7ff" stroke="#d9e3f2"/><path d="M9 11h13M9 16h10M9 21h7" stroke="#153e80" stroke-width="2" stroke-linecap="round"/><circle cx="23" cy="23" r="5" fill="none" stroke="#153e80" stroke-width="2"/><path d="m27 27 4 4" stroke="#153e80" stroke-width="2" stroke-linecap="round"/></svg><i></i><i></i><i></i><i></i></span>
+      <span id="brandName">Sydney Course Finder</span>
+    </a>
+    <nav class="header-actions" aria-label="Main navigation">
+      <button type="button" class="header-link" id="helpButton">About preview</button>
+      <button type="button" class="header-link login-link" id="loginButton">Sign in</button>
+    </nav>
+  </header>
+
+  <main class="page-main">
+    <section class="welcome" aria-labelledby="welcomeTitle">
+      <div class="welcome-content">
+        <span class="workspace-label" id="workspaceLabel">COURSE PLANNING SPACE</span>
+        <h1 id="welcomeTitle">Make your next course decision with confidence.</h1>
+        <p id="welcomeDescription">Keep your Sydney course options, notes and next steps together in one place.</p>
+        <div class="course-preview" id="coursePreview" aria-label="Example course shortlist"><div class="preview-heading"><span>EXAMPLE SHORTLIST</span><strong>Planning preview</strong></div><div class="preview-row"><span class="course-icon">IT</span><span><strong>Information technology</strong><small>Explore degrees and pathways</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div><div class="preview-row"><span class="course-icon">HE</span><span><strong>Health &amp; nursing</strong><small>Compare study options</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div><div class="preview-row"><span class="course-icon">BU</span><span><strong>Business &amp; commerce</strong><small>Build a balanced shortlist</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div></div>
+        <div class="reveal-side" id="revealSide" hidden><strong>THE LONG WAY ROUND</strong><p>Every “one last thing” was part of the test. You made it anyway.</p></div>
+      </div>
+    </section>
+    <section class="form-section" aria-label="Account setup">
+      <div class="form-card" id="panel" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span id="footerBrand">© 2026 Sydney Course Finder preview</span><span id="footerTagline">Local preview · No account is created</span><button type="button" id="footerHelp">Privacy &amp; preview</button></footer>
+  <dialog id="infoDialog" class="info-dialog"><button type="button" class="dialog-close" id="closeDialog" aria-label="Close">×</button><h2 id="infoTitle">About this preview</h2><p id="infoDescription">This is a simulated planning space. Use a made-up email and password only. Your entries stay in this tab for the final confirmation and are then cleared; they are not sent to a server or used to create an account.</p><button type="button" class="button button-primary" id="dialogOkay">Got it</button></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
