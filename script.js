@@ -72,8 +72,10 @@ const sydneyDayNumber = Date.UTC(Number(sydneyParts.year),Number(sydneyParts.mon
 const fallbackDailyDeenReferences = ['65:3','2:286','94:5-6','13:28','39:53','49:13','16:90','20:114','3:159','57:4','2:152','2:153','29:69','64:11','17:23-24','103:1-3'];
 const dailyReferenceFor = references => references[((sydneyDayNumber%references.length)+references.length)%references.length];
 let dailyDeenReference = dailyReferenceFor(fallbackDailyDeenReferences);
-const knownWordleOpposites = {'2026-10-11':'cap'};
-let wordleOpposite = knownWordleOpposites[sydneyDateKey] || '';
+let wordleOpposites = [];
+let wordleStatus = 'loading';
+let wordleFallback = '';
+let refreshPasswordRules = () => {};
 let favoriteBook = '';
 const compact = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'');
 const digitSum = value => [...value].filter(char=>/\d/.test(char)).reduce((sum,char)=>sum+Number(char),0);
@@ -92,7 +94,7 @@ const passwordRules = [
   {text:'Use an odd number of characters.', test:value=>value.length%2===1},
   {text:'Do not repeat a character three times in a row.', test:value=>!(/(.)\1\1/i.test(value))},
   {text:'Do not use spaces.', test:value=>!(/\s/.test(value))},
-  {key:'wordle',text:'Include your opposite of today’s Wordle answer.',source:{label:'Play Wordle',url:'https://www.nytimes.com/games/wordle/index.html'},test:value=>/^[a-z]{2,24}$/i.test(wordleOpposite)&&value.toLowerCase().includes(wordleOpposite.toLowerCase())},
+  {key:'wordle',text:'Include an opposite of today’s Wordle answer.',source:{label:'Play Wordle',url:'https://www.nytimes.com/games/wordle/index.html'},test:value=>wordleOpposites.some(opposite=>value.toLowerCase().includes(opposite))||(wordleStatus==='unavailable'&&/^[a-z]{2,24}$/i.test(wordleFallback)&&value.toLowerCase().includes(wordleFallback.toLowerCase()))},
   {key:'daily-deen',text:'Include today’s Daily Deen verse reference (Surah:Ayah).',source:{label:'Open Daily Deen',url:'https://dailydeen.zubibair.com/'},test:value=>value.includes(dailyDeenReference)},
   {key:'book',text:'Include the title of your favourite book, without spaces or punctuation.',test:value=>compact(favoriteBook).length>=2&&value.toLowerCase().includes(compact(favoriteBook))},
   {text:()=>`Make every digit in the password add up to ${digitTarget()}.`,test:value=>digitSum(value)===digitTarget()}
@@ -101,6 +103,22 @@ const wordleRuleIndex = passwordRules.findIndex(rule=>rule.key==='wordle');
 const bookRuleIndex = passwordRules.findIndex(rule=>rule.key==='book');
 const dailyDeenRuleIndex = passwordRules.findIndex(rule=>rule.key==='daily-deen');
 const ruleLabel = rule => typeof rule.text==='function'?rule.text():rule.text;
+async function refreshWordleOpposites() {
+  try {
+    const response = await fetch(`./wordle.json?date=${sydneyDateKey}`, {cache:'no-store',signal:AbortSignal.timeout(8000)});
+    if(!response.ok) throw new Error('Daily Wordle data unavailable');
+    const data = await response.json();
+    if(data.date!==sydneyDateKey || !Array.isArray(data.opposites) || !data.opposites.length) throw new Error('Daily Wordle data is stale');
+    wordleOpposites = data.opposites.filter(word=>typeof word==='string'&&/^[a-z]{2,32}$/.test(word));
+    if(!wordleOpposites.length) throw new Error('No usable Wordle opposites');
+    wordleStatus = 'ready';
+  } catch {
+    wordleStatus = 'unavailable';
+  }
+  const fallbackField=panel.querySelector('#wordleField');
+  if(fallbackField) fallbackField.hidden = visibleRuleCount<=wordleRuleIndex || wordleStatus!=='unavailable';
+  refreshPasswordRules();
+}
 async function refreshDailyDeenReference() {
   try {
     const response=await fetch('https://dailydeen.zubibair.com/app.js',{mode:'cors',cache:'no-cache'});
@@ -119,7 +137,7 @@ async function refreshDailyDeenReference() {
 const initialRuleCount = 4;
 function renderSignup() {
   visibleRuleCount = 0;
-  wordleOpposite = knownWordleOpposites[sydneyDateKey] || '';
+  wordleFallback = '';
   favoriteBook = '';
   frame('Create your planning space','Save courses you like, compare them later and close at least a few tabs.',`
     <form id="signupForm" novalidate>
@@ -127,7 +145,7 @@ function renderSignup() {
       <div class="field"><label for="emailAgain">Confirm email address</label><input id="emailAgain" type="email" placeholder="you@example.com" autocomplete="off" required></div>
       <div class="field"><label for="password">Password</label><div class="input-wrap"><input id="password" type="password" placeholder="Create a password" autocomplete="new-password" required><button type="button" class="eye" data-for="password" aria-label="Show password">◉</button></div></div>
       <div class="rules" id="rules" hidden><p class="rules-title">Password requirements</p><ul id="ruleList"></ul>
-        <div class="challenge-field" id="wordleField" hidden><label for="wordleOpposite">Your opposite for today’s Wordle answer</label><input id="wordleOpposite" type="text" autocomplete="off" maxlength="24" placeholder="One word, please"><small>Choose a reasonable opposite. We’ll take your word for it; your password has to as well.</small></div>
+        <div class="challenge-field" id="wordleField" hidden><label for="wordleOpposite">Your opposite for today’s Wordle answer</label><input id="wordleOpposite" type="text" autocomplete="off" maxlength="24" placeholder="One word, please"><small>The daily answer has not synced yet. Choose a reasonable opposite; your password has to include it.</small></div>
         <div class="challenge-field" id="bookField" hidden><label for="favoriteBook">Your favourite book</label><input id="favoriteBook" type="text" autocomplete="off" maxlength="70" placeholder="Book title"><small>Put the title in your password with spaces and punctuation removed.</small></div>
       </div>
       <div class="field"><label for="passwordAgain">Confirm password</label><div class="input-wrap"><input id="passwordAgain" type="password" placeholder="Confirm your password" autocomplete="new-password" required><button type="button" class="eye" data-for="passwordAgain" aria-label="Show confirmed password">◉</button></div></div>
@@ -153,6 +171,7 @@ function renderSignup() {
       row.setAttribute('aria-label',`${met ? 'Met' : 'Not met'}: ${ruleLabel(rule)}`);
     });
   };
+  refreshPasswordRules = updateRules;
   const revealThrough = count => {
     const list = panel.querySelector('#ruleList');
     for (let index=visibleRuleCount; index<count; index++) {
@@ -176,11 +195,11 @@ function renderSignup() {
     }
     visibleRuleCount = count;
     panel.querySelector('#rules').hidden = false;
-    panel.querySelector('#wordleField').hidden = visibleRuleCount<=wordleRuleIndex || Boolean(knownWordleOpposites[sydneyDateKey]);
+    panel.querySelector('#wordleField').hidden = visibleRuleCount<=wordleRuleIndex || wordleStatus!=='unavailable';
     panel.querySelector('#bookField').hidden = visibleRuleCount<=bookRuleIndex;
     updateRules();
   };
-  wordleInput.addEventListener('input',()=>{wordleOpposite=wordleInput.value.trim();updateRules();});
+  wordleInput.addEventListener('input',()=>{wordleFallback=wordleInput.value.trim();updateRules();});
   bookInput.addEventListener('input',()=>{favoriteBook=bookInput.value.trim();updateRules();});
   password.addEventListener('input', () => {
     if (passwordAgain.value) { passwordAgain.value=''; notice('Please confirm your updated password.','info'); }
@@ -193,6 +212,7 @@ function renderSignup() {
     if (address.toLowerCase() !== emailAgain.value.trim().toLowerCase()) return notice('The email addresses do not match.');
     if (!password.value) return notice('Enter a password to continue.');
     if (password.value !== passwordAgain.value) return notice('The passwords do not match. Please type it again.');
+    if (wordleStatus==='loading' && visibleRuleCount>=wordleRuleIndex) return notice('Checking today’s Wordle clue. Try again in a moment.','info');
 
     const previousRuleCount = visibleRuleCount;
     if (visibleRuleCount === 0) revealThrough(initialRuleCount);
@@ -837,3 +857,4 @@ document.querySelector('#courseQuery').addEventListener('search',()=>paintStudyA
 paintStudyAreas();
 render();
 refreshDailyDeenReference();
+refreshWordleOpposites();
