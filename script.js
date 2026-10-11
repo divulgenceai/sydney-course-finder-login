@@ -83,7 +83,7 @@ const passwordRules = [
 const initialRuleCount = 4;
 function renderSignup() {
   visibleRuleCount = 0;
-  frame('Create your planning space','Save and compare your course options in one place.',`
+  frame('Create your planning space','Save courses you like, compare them later and close at least a few tabs.',`
     <form id="signupForm" novalidate>
       <div class="field"><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="off" required></div>
       <div class="field"><label for="emailAgain">Confirm email address</label><input id="emailAgain" type="email" placeholder="you@example.com" autocomplete="off" required></div>
@@ -295,7 +295,7 @@ function renderUsername() {
   const unavailable = new Set();
   let setbacks = 0;
   let checkedName = '';
-  frame('Choose a profile name','This name will label your saved course lists.',`
+  frame('Choose a profile name','This name will label your saved course lists. The good ones go quickly.',`
     <form id="usernameForm" novalidate>
       <div class="field"><label for="username">Username</label><div class="handle-input"><span aria-hidden="true">@</span><input id="username" type="text" placeholder="Your username" autocomplete="off" maxlength="18" spellcheck="false" required></div></div>
       <p class="field-help">Use 4–18 letters, numbers or underscores. Spaces are unavailable for profile names.</p>
@@ -358,7 +358,7 @@ function renderUsername() {
 function renderCode() {
   let currentCode='482913';
   let expired=false;
-  frame('Verify your email','Enter the six-digit code to continue.',`
+  frame('Verify your email','Enter the six-digit code from the preview inbox below. Conveniently, it is right here.',`
     <div class="demo-inbox"><div class="inbox-top"><span class="inbox-icon" aria-hidden="true">✉</span><div><strong>Preview inbox</strong><small>No email is sent. Open this local preview message for your code.</small></div></div><button type="button" class="link-button" id="openInbox" aria-expanded="false">Open verification message</button><div class="inbox-message" id="inboxMessage" hidden><div class="inbox-meta">From: Sydney Course Finder preview</div><p>Your verification code is</p><strong id="inboxCode">482913</strong><small>Use the latest code shown here.</small></div></div>
     <form id="codeForm" novalidate><div class="field"><label for="verificationCode">Verification code</label><input id="verificationCode" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="off" placeholder="Six digits" required></div><p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Verify code</button></form>`);
   const inbox=panel.querySelector('#inboxMessage');
@@ -410,7 +410,7 @@ function toggleSwitch(button) {
 }
 function renderNotifications() {
   const items=[['Course updates','Changes to courses in your shortlist.'],['Application reminders','Key planning dates and follow-ups.'],['Study recommendations','Suggested courses based on your interests.']];
-  frame('Choose your updates','Select the course planning messages you want to receive.',`
+  frame('Choose your updates','Select the course planning messages you want to receive. Your inbox gets a vote, too.',`
     <div class="setting-list">${items.map(([name,description],index)=>`<div class="setting-row"><span><strong>${name}</strong><small>${description}</small></span><button type="button" class="switch message-switch" data-index="${index}" aria-label="${name} on" aria-pressed="true"></button></div>`).join('')}</div>
     <p class="quiet-note" id="quietNote">Your preferences can be updated at any time.</p><p class="form-notice" aria-live="polite"></p><button type="button" class="button button-primary full" id="continueMessages">Save preferences</button>`);
   const switches=[...panel.querySelectorAll('.message-switch')];
@@ -426,7 +426,7 @@ function renderNotifications() {
   });
 }
 function renderSurvey() {
-  frame('Personalise your plan','Tell us what you want to explore first.',`
+  frame('Personalise your plan','Tell us what you want to explore first. Changing your mind later is allowed.',`
     <form id="surveyForm" novalidate>
       <div class="field"><label for="visitReason">What are you planning to do?</label><select id="visitReason" required><option value="">Choose one</option><option>Explore study areas</option><option>Compare entry requirements</option><option>Save a course shortlist</option></select></div>
       <fieldset class="survey-options"><legend>How did you hear about the course finder?</legend><label><input type="radio" name="discovery" value="search"> Search engine</label><label><input type="radio" name="discovery" value="school"> School or careers adviser</label><label><input type="radio" name="discovery" value="friend"> Friend or family</label></fieldset>
@@ -709,6 +709,30 @@ function renderLogin() {
   panel.querySelector('#loginForm').addEventListener('submit',event=>{event.preventDefault();panel.querySelector('#loginPassword').value='';notice('Sign-in is unavailable in this preview. Create a planning space to try the setup.','info');});
   panel.querySelector('#backToSignup').addEventListener('click',()=>moveTo('signup'));
 }
+const studyAreas = [
+  {code:'IT',name:'Information technology',description:'Software, data and computing pathways',keywords:'it technology computing software data cyber'},
+  {code:'HE',name:'Health & nursing',description:'Health sciences and care professions',keywords:'health nursing medicine care'},
+  {code:'BU',name:'Business & commerce',description:'Management, finance and marketing',keywords:'business commerce management finance marketing'},
+  {code:'EN',name:'Engineering',description:'Design, build and solve practical problems',keywords:'engineering design construction'},
+  {code:'ED',name:'Education',description:'Teaching and learning pathways',keywords:'education teaching school'},
+  {code:'CA',name:'Creative arts',description:'Design, media and creative practice',keywords:'creative arts design media'}
+];
+function paintStudyAreas(query='') {
+  const results=document.querySelector('#courseResults');
+  const term=query.trim().toLowerCase();
+  const matches=studyAreas.map((area,index)=>({...area,index})).filter(area=>!term||`${area.name} ${area.keywords}`.toLowerCase().includes(term));
+  const displayed=term?matches:matches.slice(0,3);
+  results.innerHTML=displayed.length?displayed.map(area=>`<button type="button" class="preview-row" data-area="${area.index}" aria-label="Save ${area.name} to a planning space"><span class="course-icon">${area.code}</span><span><strong>${area.name}</strong><small>${area.description}</small></span><span class="preview-arrow" aria-hidden="true">→</span></button>`).join(''):'<p class="empty-results">No sample study area matched. Try a broader search.</p>';
+  results.querySelectorAll('[data-area]').forEach(button=>button.addEventListener('click',()=>{
+    results.querySelectorAll('.preview-row').forEach(row=>row.classList.remove('is-selected'));
+    button.classList.add('is-selected');
+    const area=studyAreas[Number(button.dataset.area)];
+    const notice=document.querySelector('#selectionNotice');
+    notice.textContent=`Create your planning space to keep ${area.name} on your shortlist.`;
+    notice.hidden=false;
+    if(scene==='signup'||scene==='login') document.querySelector('.form-section').scrollIntoView({behavior:'smooth',block:'start'});
+  }));
+}
 function updateIdentity() {
   const revealed=scene==='success'||scene==='prize';
   document.body.classList.toggle('revealed',revealed);
@@ -717,13 +741,14 @@ function updateIdentity() {
   document.querySelector('.brand').setAttribute('aria-label',revealed?'mildly home and restart':'Sydney Course Finder home and restart');
   document.querySelector('#brandName').textContent=revealed?'mildly':'Sydney Course Finder';
   document.querySelector('#workspaceLabel').textContent=revealed?'THE PATIENCE TEST':'COURSE PLANNING SPACE';
-  document.querySelector('#welcomeTitle').textContent=revealed?'The longest way to absolutely nowhere.':'Make your next course decision with confidence.';
-  document.querySelector('#welcomeDescription').textContent=revealed?'You survived the forms, the checks and every “one last thing.” Your patience deserves a prize.':'Keep your Sydney course options, notes and next steps together in one place.';
+  document.querySelector('#welcomeTitle').textContent=revealed?'The longest way to absolutely nowhere.':'Find a Sydney course that fits.';
+  document.querySelector('#welcomeDescription').textContent=revealed?'You survived the forms, the checks and every “one last thing.” Your patience deserves a prize.':'Explore study areas, compare your options and keep a shortlist. Fewer open tabs would be nice, wouldn’t it?';
   document.querySelector('#coursePreview').hidden=revealed;
   document.querySelector('#revealSide').hidden=!revealed;
   document.querySelector('#footerBrand').textContent=revealed?`© ${currentYear} mildly`:`© ${currentYear} Sydney Course Finder preview`;
   document.querySelector('#footerTagline').textContent=revealed?'Made for the mildly patient.':'Local preview · No account is created';
-  document.querySelector('#helpButton').textContent=revealed?'About this demo':'About preview';
+  document.querySelector('#helpButton').textContent=revealed?'About this demo':'About';
+  document.querySelector('#coursesButton').textContent=revealed?'Start over':'Courses';
   document.querySelector('#footerHelp').textContent=revealed?'About this demo':'Privacy & preview';
   document.querySelector('#loginButton').textContent=revealed?'Start again':'Sign in';
   document.querySelector('#infoTitle').textContent=revealed?'About this demo':'About this preview';
@@ -737,4 +762,16 @@ const dialog=document.querySelector('#infoDialog');
 for(const id of ['helpButton','footerHelp']) document.getElementById(id).addEventListener('click',()=>dialog.showModal());
 for(const id of ['closeDialog','dialogOkay']) document.getElementById(id).addEventListener('click',()=>dialog.close());
 document.querySelector('#loginButton').addEventListener('click',()=>moveTo(scene==='success'||scene==='prize'?'signup':'login'));
+document.querySelector('#coursesButton').addEventListener('click',()=>{
+  if(scene==='success'||scene==='prize') return moveTo('signup');
+  document.querySelector('#coursePreview').scrollIntoView({behavior:'smooth',block:'center'});
+  document.querySelector('#courseQuery').focus({preventScroll:true});
+});
+document.querySelector('#courseSearchForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  paintStudyAreas(document.querySelector('#courseQuery').value);
+  document.querySelector('#selectionNotice').hidden=true;
+});
+document.querySelector('#courseQuery').addEventListener('search',()=>paintStudyAreas(document.querySelector('#courseQuery').value));
+paintStudyAreas();
 render();

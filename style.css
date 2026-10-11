@@ -163,3 +163,39 @@ body.revealed .award-mode>h2{font:400 clamp(35px,3vw,47px)/1.1 var(--serif);lett
 .sound-toggle{border:0;background:none;color:#356fb4;text-decoration:underline;font-size:12px;font-weight:700;cursor:pointer;padding:4px 0}.sound-toggle:focus-visible{outline:2px solid #3678df;outline-offset:3px}.break-room-tools{display:flex;justify-content:center;align-items:center;gap:20px;margin:7px 0 0}.break-room-tools .link-button{margin:0}
 @media(max-width:430px){.trophy-halo{width:min(100%,285px)}.trophy-stage h3{font-size:28px}}
 @media(prefers-reduced-motion:reduce){.trophy-art{animation:none}}
+
+/* A course-search front door, with the account setup alongside it. */
+body:not(.revealed) .workspace-label{display:none}
+.courses-link{color:#123e87;position:relative}
+.courses-link:after{content:'';position:absolute;left:0;right:0;bottom:-17px;height:3px;border-radius:3px;background:#123e87}
+.welcome{background:#fff;border-right:0;min-height:730px}
+.welcome-content{padding-top:clamp(84px,7.3vw,120px)}
+.welcome h1{max-width:630px;font-size:clamp(47px,4.6vw,70px);line-height:1.06}
+.welcome p{max-width:540px;font-size:18px}
+.form-section{background:#fafbfd;border-left:1px solid #e8edf4}
+.course-preview{max-width:550px;margin-top:39px;border:1px solid #dce3ed;border-radius:10px;box-shadow:0 11px 31px #1737610b}
+.preview-heading{background:#fff;padding:21px 22px 12px;border-bottom:0}
+.preview-heading span{color:#111e34;font-size:20px;font-weight:700;letter-spacing:-.025em}
+.preview-heading strong{font-size:11px}
+.course-search-form{padding:4px 22px 16px}
+.course-search-form label{display:block;color:#41536c;font-size:12px;font-weight:700;margin:0 0 8px}
+.course-search-controls{display:flex;gap:8px}
+.course-search-controls input{height:47px;min-width:0;flex:1;border:1px solid #bdc9da;border-radius:6px;padding:0 13px;background:#fff;color:#142947;font-size:13px;outline:0}
+.course-search-controls input:focus{border-color:#123e87;box-shadow:0 0 0 3px #dbe8fb}
+.course-search-controls input::placeholder{color:#93a0b1}
+.course-search-controls button{height:47px;border:0;border-radius:6px;background:#123e87;color:#fff;padding:0 17px;font-size:13px;font-weight:700}
+.course-search-controls button:hover{background:#0b326f}
+.course-results{border-top:1px solid #edf0f5}
+.course-results .preview-row{width:100%;border:0;border-bottom:1px solid #edf0f5;background:#fff;text-align:left;cursor:pointer;font:inherit;transition:background .15s}
+.course-results .preview-row:last-child{border-bottom:0}
+.course-results .preview-row:hover,.course-results .preview-row.is-selected{background:#f3f7fd}
+.course-results .preview-row:focus-visible{outline:2px solid #699be1;outline-offset:-3px}
+.course-results .preview-row small{line-height:1.35}
+.empty-results{font-size:12px!important;color:#6b7d93!important;margin:0!important;padding:18px 22px}
+.selection-notice{border-top:1px solid #dbe7f5;background:#f2f7fd;color:#254b7b!important;font-size:12px!important;line-height:1.45!important;padding:12px 20px;margin:0!important}
+.selection-notice[hidden]{display:none}
+body.revealed .courses-link:after{display:none}
+body.revealed .form-section{background:#fff}
+@media(max-width:1100px){.welcome-content{padding-top:75px}.welcome h1{font-size:clamp(42px,4.6vw,58px)}}
+@media(max-width:760px){.welcome{min-height:0;border-bottom:1px solid #e4eaf2}.welcome-content{padding:48px 25px 40px}.welcome h1{font-size:clamp(43px,7vw,58px)}.form-section{border-left:0;background:#f8fafd}.course-preview{margin-top:28px}}
+@media(max-width:500px){.courses-link{display:none}.welcome-content{padding:42px 23px 36px}.welcome h1{font-size:42px}.welcome p{font-size:16px}.preview-heading{padding:17px 14px 10px}.preview-heading span{font-size:18px}.course-search-form{padding:4px 14px 13px}.course-search-controls input{font-size:12px}.course-search-controls button{padding:0 13px;font-size:12px}}

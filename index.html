@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Create a preview planning space for Sydney courses and compare your options.">
+  <meta name="description" content="Explore Sydney study areas and create a preview planning space for your course shortlist.">
   <title>Sydney Course Finder | Your planning space</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1">
-  <script src="./script.js?v=1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=2">
+  <script src="./script.js?v=2" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -20,7 +20,8 @@
       <span id="brandName">Sydney Course Finder</span>
     </a>
     <nav class="header-actions" aria-label="Main navigation">
-      <button type="button" class="header-link" id="helpButton">About preview</button>
+      <button type="button" class="header-link courses-link" id="coursesButton">Courses</button>
+      <button type="button" class="header-link" id="helpButton">About</button>
       <button type="button" class="header-link login-link" id="loginButton">Sign in</button>
     </nav>
   </header>
@@ -29,9 +30,14 @@
     <section class="welcome" aria-labelledby="welcomeTitle">
       <div class="welcome-content">
         <span class="workspace-label" id="workspaceLabel">COURSE PLANNING SPACE</span>
-        <h1 id="welcomeTitle">Make your next course decision with confidence.</h1>
-        <p id="welcomeDescription">Keep your Sydney course options, notes and next steps together in one place.</p>
-        <div class="course-preview" id="coursePreview" aria-label="Example course shortlist"><div class="preview-heading"><span>EXAMPLE SHORTLIST</span><strong>Planning preview</strong></div><div class="preview-row"><span class="course-icon">IT</span><span><strong>Information technology</strong><small>Explore degrees and pathways</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div><div class="preview-row"><span class="course-icon">HE</span><span><strong>Health &amp; nursing</strong><small>Compare study options</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div><div class="preview-row"><span class="course-icon">BU</span><span><strong>Business &amp; commerce</strong><small>Build a balanced shortlist</small></span><span class="preview-arrow" aria-hidden="true">↗</span></div></div>
+        <h1 id="welcomeTitle">Find a Sydney course that fits.</h1>
+        <p id="welcomeDescription">Explore study areas, compare your options and keep a shortlist. Fewer open tabs would be nice, wouldn't it?</p>
+        <div class="course-preview" id="coursePreview" aria-label="Sample study areas">
+          <div class="preview-heading"><span>Search courses</span><strong>Example study areas</strong></div>
+          <form class="course-search-form" id="courseSearchForm" role="search"><label for="courseQuery">Course or study area</label><div class="course-search-controls"><input id="courseQuery" type="search" placeholder="Try nursing, IT or business" autocomplete="off"><button type="submit">Search</button></div></form>
+          <div id="courseResults" class="course-results" aria-live="polite"></div>
+          <p id="selectionNotice" class="selection-notice" role="status" hidden></p>
+        </div>
         <div class="reveal-side" id="revealSide" hidden><strong>THE LONG WAY ROUND</strong><p>Every “one last thing” was part of the test. You made it anyway.</p></div>
       </div>
     </section>
