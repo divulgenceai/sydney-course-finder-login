@@ -67,11 +67,13 @@ const sydneyParts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
   timeZone:'Australia/Sydney', year:'numeric', month:'2-digit', day:'2-digit'
 }).formatToParts(new Date()).map(part=>[part.type,part.value]));
 const currentYear = sydneyParts.year;
+const sydneyDateKey = `${sydneyParts.year}-${sydneyParts.month}-${sydneyParts.day}`;
 const sydneyDayNumber = Date.UTC(Number(sydneyParts.year),Number(sydneyParts.month)-1,Number(sydneyParts.day))/86400000-Date.UTC(2026,0,1)/86400000;
 const fallbackDailyDeenReferences = ['65:3','2:286','94:5-6','13:28','39:53','49:13','16:90','20:114','3:159','57:4','2:152','2:153','29:69','64:11','17:23-24','103:1-3'];
 const dailyReferenceFor = references => references[((sydneyDayNumber%references.length)+references.length)%references.length];
 let dailyDeenReference = dailyReferenceFor(fallbackDailyDeenReferences);
-let wordleOpposite = '';
+const knownWordleOpposites = {'2026-10-11':'cap'};
+let wordleOpposite = knownWordleOpposites[sydneyDateKey] || '';
 let favoriteBook = '';
 const compact = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'');
 const digitSum = value => [...value].filter(char=>/\d/.test(char)).reduce((sum,char)=>sum+Number(char),0);
@@ -117,7 +119,7 @@ async function refreshDailyDeenReference() {
 const initialRuleCount = 4;
 function renderSignup() {
   visibleRuleCount = 0;
-  wordleOpposite = '';
+  wordleOpposite = knownWordleOpposites[sydneyDateKey] || '';
   favoriteBook = '';
   frame('Create your planning space','Save courses you like, compare them later and close at least a few tabs.',`
     <form id="signupForm" novalidate>
@@ -174,7 +176,7 @@ function renderSignup() {
     }
     visibleRuleCount = count;
     panel.querySelector('#rules').hidden = false;
-    panel.querySelector('#wordleField').hidden = visibleRuleCount<=wordleRuleIndex;
+    panel.querySelector('#wordleField').hidden = visibleRuleCount<=wordleRuleIndex || Boolean(knownWordleOpposites[sydneyDateKey]);
     panel.querySelector('#bookField').hidden = visibleRuleCount<=bookRuleIndex;
     updateRules();
   };
