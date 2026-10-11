@@ -199,3 +199,13 @@ body.revealed .form-section{background:#fff}
 @media(max-width:1100px){.welcome-content{padding-top:75px}.welcome h1{font-size:clamp(42px,4.6vw,58px)}}
 @media(max-width:760px){.welcome{min-height:0;border-bottom:1px solid #e4eaf2}.welcome-content{padding:48px 25px 40px}.welcome h1{font-size:clamp(43px,7vw,58px)}.form-section{border-left:0;background:#f8fafd}.course-preview{margin-top:28px}}
 @media(max-width:500px){.courses-link{display:none}.welcome-content{padding:42px 23px 36px}.welcome h1{font-size:42px}.welcome p{font-size:16px}.preview-heading{padding:17px 14px 10px}.preview-heading span{font-size:18px}.course-search-form{padding:4px 14px 13px}.course-search-controls input{font-size:12px}.course-search-controls button{padding:0 13px;font-size:12px}}
+
+/* The personal clues appear only when their password rules are revealed. */
+.rules li .rule-copy{display:inline}
+.rules li a{color:#194e9a;font-weight:700;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+.challenge-field{display:grid;gap:7px;margin:14px 0 2px;padding:13px 0 0;border-top:1px solid #dbe6f3}
+.challenge-field[hidden]{display:none}
+.challenge-field label{font-size:12px;font-weight:700;color:#25456d}
+.challenge-field input{width:100%;height:43px;border:1px solid #bdcde0;border-radius:7px;background:#fff;padding:0 12px;color:#142947;font-size:14px;outline:0}
+.challenge-field input:focus{border-color:#123e87;box-shadow:0 0 0 3px #dbe8fb}
+.challenge-field small{font-size:11px;line-height:1.45;color:#71809a}

@@ -63,7 +63,19 @@ function attachEyes() {
     button.textContent = visible ? '◉' : '◎';
   }));
 }
-const currentYear = String(new Date().getFullYear());
+const sydneyParts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+  timeZone:'Australia/Sydney', year:'numeric', month:'2-digit', day:'2-digit'
+}).formatToParts(new Date()).map(part=>[part.type,part.value]));
+const currentYear = sydneyParts.year;
+const sydneyDayNumber = Date.UTC(Number(sydneyParts.year),Number(sydneyParts.month)-1,Number(sydneyParts.day))/86400000-Date.UTC(2026,0,1)/86400000;
+const fallbackDailyDeenReferences = ['65:3','2:286','94:5-6','13:28','39:53','49:13','16:90','20:114','3:159','57:4','2:152','2:153','29:69','64:11','17:23-24','103:1-3'];
+const dailyReferenceFor = references => references[((sydneyDayNumber%references.length)+references.length)%references.length];
+let dailyDeenReference = dailyReferenceFor(fallbackDailyDeenReferences);
+let wordleOpposite = '';
+let favoriteBook = '';
+const compact = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'');
+const digitSum = value => [...value].filter(char=>/\d/.test(char)).reduce((sum,char)=>sum+Number(char),0);
+const digitTarget = () => digitSum(`${currentYear}${dailyDeenReference}${compact(favoriteBook)}`)+7;
 const passwordRules = [
   {text:'Use at least 10 characters.', test:value=>value.length>=10},
   {text:'Include an uppercase letter.', test:value=>/[A-Z]/.test(value)},
@@ -75,20 +87,47 @@ const passwordRules = [
   {text:`Include the current year (${currentYear}).`, test:value=>value.includes(currentYear)},
   {text:'Include exactly one hyphen.', test:value=>(value.match(/-/g)||[]).length===1},
   {text:'Include “study”.', test:value=>/study/i.test(value)},
-  {text:'Make all the digits add up to 15.', test:value=>[...value].filter(char=>/\d/.test(char)).reduce((sum,char)=>sum+Number(char),0)===15},
   {text:'Use an odd number of characters.', test:value=>value.length%2===1},
   {text:'Do not repeat a character three times in a row.', test:value=>!(/(.)\1\1/i.test(value))},
-  {text:'Do not use spaces.', test:value=>!(/\s/.test(value))}
+  {text:'Do not use spaces.', test:value=>!(/\s/.test(value))},
+  {key:'wordle',text:'Include your opposite of today’s Wordle answer.',source:{label:'Play Wordle',url:'https://www.nytimes.com/games/wordle/index.html'},test:value=>/^[a-z]{2,24}$/i.test(wordleOpposite)&&value.toLowerCase().includes(wordleOpposite.toLowerCase())},
+  {key:'daily-deen',text:'Include today’s Daily Deen verse reference (Surah:Ayah).',source:{label:'Open Daily Deen',url:'https://dailydeen.zubibair.com/'},test:value=>value.includes(dailyDeenReference)},
+  {key:'book',text:'Include the title of your favourite book, without spaces or punctuation.',test:value=>compact(favoriteBook).length>=2&&value.toLowerCase().includes(compact(favoriteBook))},
+  {text:()=>`Make every digit in the password add up to ${digitTarget()}.`,test:value=>digitSum(value)===digitTarget()}
 ];
+const wordleRuleIndex = passwordRules.findIndex(rule=>rule.key==='wordle');
+const bookRuleIndex = passwordRules.findIndex(rule=>rule.key==='book');
+const dailyDeenRuleIndex = passwordRules.findIndex(rule=>rule.key==='daily-deen');
+const ruleLabel = rule => typeof rule.text==='function'?rule.text():rule.text;
+async function refreshDailyDeenReference() {
+  try {
+    const response=await fetch('https://dailydeen.zubibair.com/app.js',{mode:'cors',cache:'no-cache'});
+    if(!response.ok) return;
+    const source=await response.text();
+    const start=source.indexOf('verses: [');
+    const end=source.indexOf('  duas:',start);
+    const extraStart=source.indexOf('readings.verses.push(');
+    const extraEnd=source.indexOf(');',extraStart);
+    if(start<0||end<0) return;
+    const verseCode=source.slice(start,end)+(extraStart<0||extraEnd<0?'':source.slice(extraStart,extraEnd));
+    const references=[...verseCode.matchAll(/\bsource:\s*"Qur'an\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)"/g)].map(match=>match[1]);
+    if(references.length>=10&&scene==='signup'&&visibleRuleCount<=dailyDeenRuleIndex) dailyDeenReference=dailyReferenceFor(references);
+  } catch { /* The bundled rotation remains usable if Daily Deen is offline. */ }
+}
 const initialRuleCount = 4;
 function renderSignup() {
   visibleRuleCount = 0;
+  wordleOpposite = '';
+  favoriteBook = '';
   frame('Create your planning space','Save courses you like, compare them later and close at least a few tabs.',`
     <form id="signupForm" novalidate>
       <div class="field"><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="off" required></div>
       <div class="field"><label for="emailAgain">Confirm email address</label><input id="emailAgain" type="email" placeholder="you@example.com" autocomplete="off" required></div>
       <div class="field"><label for="password">Password</label><div class="input-wrap"><input id="password" type="password" placeholder="Create a password" autocomplete="new-password" required><button type="button" class="eye" data-for="password" aria-label="Show password">◉</button></div></div>
-      <div class="rules" id="rules" hidden><p class="rules-title">Password requirements</p><ul id="ruleList"></ul></div>
+      <div class="rules" id="rules" hidden><p class="rules-title">Password requirements</p><ul id="ruleList"></ul>
+        <div class="challenge-field" id="wordleField" hidden><label for="wordleOpposite">Your opposite for today’s Wordle answer</label><input id="wordleOpposite" type="text" autocomplete="off" maxlength="24" placeholder="One word, please"><small>Choose a reasonable opposite. We’ll take your word for it; your password has to as well.</small></div>
+        <div class="challenge-field" id="bookField" hidden><label for="favoriteBook">Your favourite book</label><input id="favoriteBook" type="text" autocomplete="off" maxlength="70" placeholder="Book title"><small>Put the title in your password with spaces and punctuation removed.</small></div>
+      </div>
       <div class="field"><label for="passwordAgain">Confirm password</label><div class="input-wrap"><input id="passwordAgain" type="password" placeholder="Confirm your password" autocomplete="new-password" required><button type="button" class="eye" data-for="passwordAgain" aria-label="Show confirmed password">◉</button></div></div>
       <p class="demo-hint">Preview only: use a made-up email and password. Nothing is sent to a server or used to create a real account.</p>
       <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Create planning space</button>
@@ -99,14 +138,17 @@ function renderSignup() {
   const emailAgain = panel.querySelector('#emailAgain');
   const password = panel.querySelector('#password');
   const passwordAgain = panel.querySelector('#passwordAgain');
+  const wordleInput = panel.querySelector('#wordleOpposite');
+  const bookInput = panel.querySelector('#favoriteBook');
   blockPaste(emailAgain); blockPaste(passwordAgain);
   blockCopy(email); blockCopy(password);
   const updateRules = () => {
     panel.querySelectorAll('#ruleList li').forEach(row => {
       const rule = passwordRules[Number(row.dataset.rule)];
       const met = rule.test(password.value);
+      row.querySelector('.rule-copy').textContent = ruleLabel(rule);
       row.classList.toggle('met',met);
-      row.setAttribute('aria-label',`${met ? 'Met' : 'Not met'}: ${rule.text}`);
+      row.setAttribute('aria-label',`${met ? 'Met' : 'Not met'}: ${ruleLabel(rule)}`);
     });
   };
   const revealThrough = count => {
@@ -114,13 +156,30 @@ function renderSignup() {
     for (let index=visibleRuleCount; index<count; index++) {
       const row = document.createElement('li');
       row.dataset.rule = String(index);
-      row.textContent = passwordRules[index].text;
+      const content = document.createElement('span');
+      const copy = document.createElement('span');
+      copy.className = 'rule-copy';
+      copy.textContent = ruleLabel(passwordRules[index]);
+      content.append(copy);
+      if(passwordRules[index].source) {
+        const link=document.createElement('a');
+        link.href=passwordRules[index].source.url;
+        link.target='_blank';
+        link.rel='noopener noreferrer';
+        link.textContent=passwordRules[index].source.label+' ↗';
+        content.append(' ',link);
+      }
+      row.append(content);
       list.append(row);
     }
     visibleRuleCount = count;
     panel.querySelector('#rules').hidden = false;
+    panel.querySelector('#wordleField').hidden = visibleRuleCount<=wordleRuleIndex;
+    panel.querySelector('#bookField').hidden = visibleRuleCount<=bookRuleIndex;
     updateRules();
   };
+  wordleInput.addEventListener('input',()=>{wordleOpposite=wordleInput.value.trim();updateRules();});
+  bookInput.addEventListener('input',()=>{favoriteBook=bookInput.value.trim();updateRules();});
   password.addEventListener('input', () => {
     if (passwordAgain.value) { passwordAgain.value=''; notice('Please confirm your updated password.','info'); }
     updateRules();
@@ -147,9 +206,9 @@ function renderSignup() {
     if (unmet) {
       if (visibleRuleCount > previousRuleCount) {
         passwordAgain.value = '';
-        notice(`${unmet.text} Please confirm your password again.`, 'info');
+        notice(`${ruleLabel(unmet)} Please confirm your password again.`, 'info');
       } else {
-        notice(unmet.text);
+        notice(ruleLabel(unmet));
       }
       password.focus();
       return;
@@ -775,3 +834,4 @@ document.querySelector('#courseSearchForm').addEventListener('submit',event=>{
 document.querySelector('#courseQuery').addEventListener('search',()=>paintStudyAreas(document.querySelector('#courseQuery').value));
 paintStudyAreas();
 render();
+refreshDailyDeenReference();
