@@ -3,7 +3,7 @@ name: Refresh daily Wordle challenge
 on:
   schedule:
     # Sydney midnight is 13:00 or 14:00 UTC, depending on daylight saving.
-    - cron: '7 13,14 * * *'
+    - cron: '17 13,14,15,16 * * *'
   workflow_dispatch:
 
 permissions:

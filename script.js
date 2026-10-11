@@ -109,17 +109,20 @@ const bookRuleIndex = passwordRules.findIndex(rule=>rule.key==='book');
 const dailyDeenRuleIndex = passwordRules.findIndex(rule=>rule.key==='daily-deen');
 const ruleLabel = rule => typeof rule.text==='function'?rule.text():rule.text;
 async function refreshWordleOpposites() {
-  try {
-    const response = await fetch(`./wordle.json?date=${sydneyDateKey}`, {cache:'no-store',signal:AbortSignal.timeout(8000)});
-    if(!response.ok) throw new Error('Daily Wordle data unavailable');
-    const data = await response.json();
-    if(data.date!==sydneyDateKey || !Array.isArray(data.opposites) || !data.opposites.length) throw new Error('Daily Wordle data is stale');
-    wordleOpposites = data.opposites.filter(word=>typeof word==='string'&&/^[a-z]{2,32}$/.test(word));
-    if(!wordleOpposites.length) throw new Error('No usable Wordle opposites');
-    wordleStatus = 'ready';
-  } catch {
-    wordleStatus = 'unavailable';
+  for(const url of ['./api/wordle',`./wordle.json?date=${sydneyDateKey}`]) {
+    try {
+      const response = await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(8000)});
+      if(!response.ok) continue;
+      const data = await response.json();
+      if(data.date!==sydneyDateKey || !Array.isArray(data.opposites)) continue;
+      const opposites=data.opposites.filter(word=>typeof word==='string'&&/^[a-z]{2,32}$/.test(word));
+      if(!opposites.length) continue;
+      wordleOpposites = opposites;
+      wordleStatus = 'ready';
+      break;
+    } catch { /* Try the next daily clue source. */ }
   }
+  if(wordleStatus!=='ready') wordleStatus='unavailable';
   const fallbackField=panel.querySelector('#wordleField');
   if(fallbackField) fallbackField.hidden = visibleRuleCount<=wordleRuleIndex || wordleStatus!=='unavailable';
   refreshPasswordRules();
