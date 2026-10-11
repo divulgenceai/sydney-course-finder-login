@@ -63,9 +63,14 @@ function attachEyes() {
     button.textContent = visible ? '◉' : '◎';
   }));
 }
-const sydneyParts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+const sydneyDateFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone:'Australia/Sydney', year:'numeric', month:'2-digit', day:'2-digit'
-}).formatToParts(new Date()).map(part=>[part.type,part.value]));
+});
+const getSydneyDateKey = () => {
+  const parts=Object.fromEntries(sydneyDateFormatter.formatToParts(new Date()).map(part=>[part.type,part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+const sydneyParts = Object.fromEntries(sydneyDateFormatter.formatToParts(new Date()).map(part=>[part.type,part.value]));
 const currentYear = sydneyParts.year;
 const sydneyDateKey = `${sydneyParts.year}-${sydneyParts.month}-${sydneyParts.day}`;
 const sydneyDayNumber = Date.UTC(Number(sydneyParts.year),Number(sydneyParts.month)-1,Number(sydneyParts.day))/86400000-Date.UTC(2026,0,1)/86400000;
@@ -858,3 +863,6 @@ paintStudyAreas();
 render();
 refreshDailyDeenReference();
 refreshWordleOpposites();
+const reloadForNewSydneyDay = () => { if(getSydneyDateKey()!==sydneyDateKey) window.location.reload(); };
+setInterval(reloadForNewSydneyDay,60_000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reloadForNewSydneyDay(); });
