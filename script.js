@@ -91,11 +91,11 @@ const passwordRules = [
   {text:'Include a number.', test:value=>/\d/.test(value)},
   {text:'Include a special character.', test:value=>/[^\w\s]/.test(value)},
   {text:'Include a lowercase letter, too.', test:value=>/[a-z]/.test(value)},
-  {text:'Include “Sydney”.', test:value=>/sydney/i.test(value)},
+  {text:'Include the word “mild”.', test:value=>/mild/i.test(value)},
   {text:'End with an exclamation mark.', test:value=>value.endsWith('!')},
   {text:`Include the current year (${currentYear}).`, test:value=>value.includes(currentYear)},
   {text:'Include exactly one hyphen.', test:value=>(value.match(/-/g)||[]).length===1},
-  {text:'Include “study”.', test:value=>/study/i.test(value)},
+  {text:'Include the word “please”.', test:value=>/please/i.test(value)},
   {text:'Use an odd number of characters.', test:value=>value.length%2===1},
   {text:'Do not repeat a character three times in a row.', test:value=>!(/(.)\1\1/i.test(value))},
   {text:'Do not use spaces.', test:value=>!(/\s/.test(value))},
@@ -147,7 +147,7 @@ function renderSignup() {
   visibleRuleCount = 0;
   wordleFallback = '';
   favoriteBook = '';
-  frame('Create your planning space','Save courses you like, compare them later and close at least a few tabs.',`
+  frame('Create your account','Enter your details to get started.',`
     <form id="signupForm" novalidate>
       <div class="field"><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="off" required></div>
       <div class="field"><label for="emailAgain">Confirm email address</label><input id="emailAgain" type="email" placeholder="you@example.com" autocomplete="off" required></div>
@@ -157,8 +157,8 @@ function renderSignup() {
         <div class="challenge-field" id="bookField" hidden><label for="favoriteBook">Your favourite book</label><input id="favoriteBook" type="text" autocomplete="off" maxlength="70" placeholder="Book title"><small>Put the title in your password with spaces and punctuation removed.</small></div>
       </div>
       <div class="field"><label for="passwordAgain">Confirm password</label><div class="input-wrap"><input id="passwordAgain" type="password" placeholder="Confirm your password" autocomplete="new-password" required><button type="button" class="eye" data-for="passwordAgain" aria-label="Show confirmed password">◉</button></div></div>
-      <p class="demo-hint">Preview only: use a made-up email and password. Nothing is sent to a server or used to create a real account.</p>
-      <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Create planning space</button>
+      <p class="demo-hint">This is a demo. Use a made-up email and password. Nothing is sent to a server.</p>
+      <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Create account</button>
     </form>`);
   attachEyes();
   const form = panel.querySelector('#signupForm');
@@ -283,7 +283,7 @@ function renderCaptcha() {
   frame('Confirm it’s you','We just need to run a quick security check.',`
     <div class="captcha-widget">
       <button type="button" class="captcha-checkbox" id="robotCheck" aria-label="I'm not a robot" aria-haspopup="dialog" aria-expanded="false"><span class="captcha-checkbox-square" aria-hidden="true"></span><span>I'm not a robot</span></button>
-      <div class="captcha-widget-brand" aria-hidden="true"><span class="captcha-widget-mark">S</span><small>SCF verify<br><span>Privacy · Terms</span></small></div>
+      <div class="captcha-widget-brand" aria-hidden="true"><span class="captcha-widget-mark">m</span><small>mildly verify<br><span>Privacy · Terms</span></small></div>
     </div>
     <p class="captcha-under-note">Please complete verification to continue.</p>`);
   const checkbox = panel.querySelector('#robotCheck');
@@ -368,7 +368,7 @@ function renderCaptcha() {
     });
   }
   function paintFinal() {
-    dialog.innerHTML=`<div class="captcha-dialog-header"><span>Verification complete</span><strong>Confirm your result</strong><small>Submit the completed check.</small></div><div class="captcha-final"><div class="captcha-final-icon" aria-hidden="true">✓</div><p>Confirm this result to continue setting up your planning space.</p><button type="button" class="captcha-verify" id="finalVerify">CONFIRM VERIFICATION</button></div>`;
+    dialog.innerHTML=`<div class="captcha-dialog-header"><span>Verification complete</span><strong>Confirm your result</strong><small>Submit the completed check.</small></div><div class="captcha-final"><div class="captcha-final-icon" aria-hidden="true">✓</div><p>Confirm this result to continue setting up your account.</p><button type="button" class="captcha-verify" id="finalVerify">CONFIRM VERIFICATION</button></div>`;
     dialog.querySelector('#finalVerify').addEventListener('click',()=>{
       dialog.close();
       checkbox.classList.add('verified');
@@ -384,7 +384,7 @@ function renderUsername() {
   const unavailable = new Set();
   let setbacks = 0;
   let checkedName = '';
-  frame('Choose a profile name','This name will label your saved course lists. The good ones go quickly.',`
+  frame('Choose a profile name','This name will follow you around the site. The good ones go quickly.',`
     <form id="usernameForm" novalidate>
       <div class="field"><label for="username">Username</label><div class="handle-input"><span aria-hidden="true">@</span><input id="username" type="text" placeholder="Your username" autocomplete="off" maxlength="18" spellcheck="false" required></div></div>
       <p class="field-help">Use 4–18 letters, numbers or underscores. Spaces are unavailable for profile names.</p>
@@ -447,8 +447,8 @@ function renderUsername() {
 function renderCode() {
   let currentCode='482913';
   let expired=false;
-  frame('Verify your email','Enter the six-digit code from the preview inbox below. Conveniently, it is right here.',`
-    <div class="demo-inbox"><div class="inbox-top"><span class="inbox-icon" aria-hidden="true">✉</span><div><strong>Preview inbox</strong><small>No email is sent. Open this local preview message for your code.</small></div></div><button type="button" class="link-button" id="openInbox" aria-expanded="false">Open verification message</button><div class="inbox-message" id="inboxMessage" hidden><div class="inbox-meta">From: Sydney Course Finder preview</div><p>Your verification code is</p><strong id="inboxCode">482913</strong><small>Use the latest code shown here.</small></div></div>
+  frame('Verify your email','Enter the six-digit code from the demo inbox below. Conveniently, it is right here.',`
+    <div class="demo-inbox"><div class="inbox-top"><span class="inbox-icon" aria-hidden="true">✉</span><div><strong>Demo inbox</strong><small>No email is sent. Open this simulated message for your code.</small></div></div><button type="button" class="link-button" id="openInbox" aria-expanded="false">Open verification email</button><div class="inbox-message" id="inboxMessage" hidden><div class="inbox-meta">From: mildly &lt;hello@example.invalid&gt;</div><p>Your verification code is</p><strong id="inboxCode">482913</strong><small>Valid until the site decides otherwise.</small></div></div>
     <form id="codeForm" novalidate><div class="field"><label for="verificationCode">Verification code</label><input id="verificationCode" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="off" placeholder="Six digits" required></div><p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Verify code</button></form>`);
   const inbox=panel.querySelector('#inboxMessage');
   const input=panel.querySelector('#verificationCode');
@@ -468,7 +468,7 @@ function renderCode() {
       currentCode='734206';
       input.value='';
       panel.querySelector('#inboxCode').textContent=currentCode;
-      notice('That code expired. A new preview code has been issued.','info');
+      notice('That code expired. A new demo code has been issued.','info');
       inbox.hidden=false;
       opener.textContent='Close verification message';
       opener.setAttribute('aria-expanded','true');
@@ -498,8 +498,8 @@ function toggleSwitch(button) {
   button.classList.toggle('off',wasOn);
 }
 function renderNotifications() {
-  const items=[['Course updates','Changes to courses in your shortlist.'],['Application reminders','Key planning dates and follow-ups.'],['Study recommendations','Suggested courses based on your interests.']];
-  frame('Choose your updates','Select the course planning messages you want to receive. Your inbox gets a vote, too.',`
+  const items=[['Product updates','Be first to hear what is new.'],['Useful reminders','A little nudge when you need it.'],['Offers and tips','Occasional ideas, delivered to your inbox.']];
+  frame('Make it yours','Choose the messages you would like to receive.',`
     <div class="setting-list">${items.map(([name,description],index)=>`<div class="setting-row"><span><strong>${name}</strong><small>${description}</small></span><button type="button" class="switch message-switch" data-index="${index}" aria-label="${name} on" aria-pressed="true"></button></div>`).join('')}</div>
     <p class="quiet-note" id="quietNote">Your preferences can be updated at any time.</p><p class="form-notice" aria-live="polite"></p><button type="button" class="button button-primary full" id="continueMessages">Save preferences</button>`);
   const switches=[...panel.querySelectorAll('.message-switch')];
@@ -515,13 +515,13 @@ function renderNotifications() {
   });
 }
 function renderSurvey() {
-  frame('Personalise your plan','Tell us what you want to explore first. Changing your mind later is allowed.',`
+  frame('A little about you','Help us tailor your experience. This should only take a moment.',`
     <form id="surveyForm" novalidate>
-      <div class="field"><label for="visitReason">What are you planning to do?</label><select id="visitReason" required><option value="">Choose one</option><option>Explore study areas</option><option>Compare entry requirements</option><option>Save a course shortlist</option></select></div>
-      <fieldset class="survey-options"><legend>How did you hear about the course finder?</legend><label><input type="radio" name="discovery" value="search"> Search engine</label><label><input type="radio" name="discovery" value="school"> School or careers adviser</label><label><input type="radio" name="discovery" value="friend"> Friend or family</label></fieldset>
+      <div class="field"><label for="visitReason">What brings you here today?</label><select id="visitReason" required><option value="">Choose one</option><option>Curiosity</option><option>Peer pressure</option><option>I have come too far to leave</option></select></div>
+      <fieldset class="survey-options"><legend>How did you hear about us?</legend><label><input type="radio" name="discovery" value="internet"> The internet</label><label><input type="radio" name="discovery" value="other"> Somewhere else on the internet</label><label><input type="radio" name="discovery" value="unsure"> I no longer remember</label></fieldset>
       <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Save my answers</button><button class="link-button survey-skip" type="button" id="skipSurvey">Skip for now</button>
     </form>`);
-  panel.querySelector('#skipSurvey').addEventListener('click',()=>notice('A planning goal is required before the space can be prepared.','info'));
+  panel.querySelector('#skipSurvey').addEventListener('click',()=>notice('This optional step is required to continue. Sorry about the wording.','info'));
   panel.querySelector('#surveyForm').addEventListener('submit',event=>{
     event.preventDefault();
     if(!panel.querySelector('#visitReason').value || !panel.querySelector('input[name="discovery"]:checked')) return notice('Please answer both questions before continuing.');
@@ -529,36 +529,36 @@ function renderSurvey() {
   });
 }
 const termsChapters = [
-  {title:'Scope of this planning preview', clauses:[
-    'This planning space is an interactive preview of a course organisation flow. It does not create a real account, retrieve personal enrolment records, or submit an application. Details entered during setup remain in the current browser tab and are cleared when the flow is completed or restarted.',
-    'Course examples on the welcome screen are illustrations of study areas. They are not recommendations, offers, or statements that a particular program is currently open. Before making a decision, compare current information with the institution and the relevant admissions service.',
-    'The preview may ask you to repeat information you entered earlier to confirm that the session remains active. For this reason, use only made-up contact details and a made-up password that you do not use for any real account.',
-    'Sections of this notice include separate acknowledgement and preference controls. An acknowledgement records that you reviewed a section. An optional request changes a preference; leaving an optional request unticked leaves that preference unchanged.'
-  ], mark:'I understand that this preview does not create an account.', trap:'Enable an additional identity review for this preview.'},
-  {title:'Course information and decisions', clauses:[
-    'Course names, campuses, delivery modes, entry requirements, selection ranks, prerequisites, fees and application dates may change. This preview does not verify live course data or guarantee that any example shown here will remain available when applications open.',
-    'A selection rank can include adjustment factors and may differ from a raw ATAR. Meeting a published threshold may still be insufficient when a course has prerequisites, interviews, portfolios, limited places or other conditions determined by its provider.',
-    'A saved list is a planning aid, not an application or expression of preference submitted to a university. The order of examples in this preview does not determine the order in which a real admissions centre considers course preferences.',
-    'You should check current official course pages before relying on any planning note. If different sources describe a program differently, use the provider and admissions authority to confirm the current requirement for the intake that interests you.'
-  ], mark:'I will confirm course requirements with official sources.'},
-  {title:'Preferences and messages', clauses:[
-    'Essential interface settings support the preview in this tab. Optional settings describe the kinds of reminders and recommendations a completed planning space might provide. This preview does not actually enrol you in an email or notification service.',
-    'A setting can be reviewed without being enabled. To record your choice, inspect each control and leave it in the position that reflects your preference. The setup screen may require that all available controls have been reviewed before proceeding.',
-    'The phrase “course update” can refer to a change in a course record, a planning prompt, or a recommendation based on an interest selected during setup. A preview message is not an official communication from a university or admissions centre.',
-    'If you restart the preview, the choices you made in this tab may return to their starting positions. This behaviour does not affect settings at any other website, account, device or service.'
-  ], mark:'I reviewed the planning preference controls.', trap:'Re-enable all optional planning messages for this session.'},
-  {title:'Verification and local data', clauses:[
-    'The verification steps in this preview are simulated. Completing an image, shape or number prompt does not verify your identity with an external service. The preview does not send your selected squares or typed answers to a server.',
-    'A code shown in the preview inbox is generated for this local flow and is not an email or one-time password for another service. Only the latest code displayed in the preview inbox is accepted by the current setup session.',
-    'Your made-up email and password are held temporarily in memory while this session is active. They are not written to local storage by this page. Closing or refreshing the tab also ends the session.',
-    'Do not enter a real password, authentication code, private identifier or application detail into this preview. If you need to apply to a course, use the official provider or admissions service rather than this local setup demonstration.'
-  ], mark:'I will use made-up details in this preview.'},
-  {title:'Completion of the preview', clauses:[
-    'The setup flow may recheck a previous answer before showing its final screen. A displayed percentage is a visual indication of the current preview step and may change when an additional local check begins.',
-    'Completion of the preview does not open an account, save a course list online or grant admission to a program. It simply finishes the local sequence in this tab and clears the temporary made-up credentials used for its matching step.',
-    'Any material displayed at completion belongs to this local preview. It has no monetary value and does not represent a university, admissions body or course provider. This browser experience is separate from official course and application services.',
-    'This is the final section of the preview information. Review the controls associated with each section before continuing; scrolling to the end alone does not record those individual choices.'
-  ], mark:'I reached the final section of this information.'}
+  {title:'The introductory introduction', clauses:[
+    'This is a parody demo. No account will be created, and the details you type are used only inside this browser tab for the final memory check. They are not submitted to a server or saved between visits. Reading beyond this sentence does not create a legal contract, although it may create a lasting impression.',
+    'The phrase “quick setup” describes an aspiration rather than a measurable unit of time. A quick setup may include a few questions, several questions about the previous questions, and a pause in which the interface appears to consider whether the previous answers were sufficiently enthusiastic.',
+    'By continuing to read, you acknowledge that a button labelled Continue may ask you to continue doing the thing you were already doing. Small boxes in this document serve different purposes: some record what you read, while others request entirely new inconveniences. The site assumes you can tell the difference.',
+    'If a page asks you to confirm an email address twice, the second entry is presumed to contain the same letters in roughly the same order. The site may nevertheless request a third confirmation later, after you have had enough time to forget what you typed in the first two.'
+  ], mark:'I noticed the small acknowledgement in the introduction.', trap:'Please add another verification round for me.'},
+  {title:'On verification and reasonable doubt', clauses:[
+    'Images used for verification may feature familiar street objects. A bicycle remains a bicycle when viewed from an inconvenient angle, a traffic light remains a traffic light while displaying amber, and a bus continues to qualify as a bus even when it looks as though it would rather be elsewhere.',
+    'A completed challenge may lead to another challenge. This does not imply that the first answer was wrong. It merely means the system has found a new way to be uncertain. The next challenge may reuse the same images because acquiring new ones would have taken additional time.',
+    'You are responsible for deciding whether an object appears in a tiny square. The operators of this fictional service reserve the right to ask whether the object does not appear in a square, appears in all squares, or is emotionally present despite being physically absent.',
+    'The verification checkbox is a theatrical device. It cannot determine whether you are a robot, a person, or a person who has spent so long on the internet that the distinction feels increasingly academic. It can, however, open another window.'
+  ], mark:'I have considered the possibility of another verification.'},
+  {title:'Preferences, notices, and other small print', clauses:[
+    'A preference can be described as optional while still requiring you to inspect its switch. Turning something off may require more effort than turning it on. The site apologises in advance for any feeling that the controls have a stronger preference than you do.',
+    'Necessary cookies in this demo are a subject of conversation rather than a real tracking system. The choices presented are part of the joke. Any apparent urgency in the wording of the preference screen is therefore entirely cosmetic, much like the certainty of a progress bar.',
+    'If you leave this page before finishing, the process may begin again when you return. This behaviour should not be interpreted as a motivational technique, although it has been observed to produce a surprising level of determination in some visitors.',
+    'Occasional phrases such as “one more thing” and “almost there” are not guarantees about distance to completion. They are expressions of optimism. The site may be optimistic on your behalf even when you would prefer it to be quiet.'
+  ], mark:'I found this tiny line among the preferences.', trap:'Turn every optional notification back on for me.'},
+  {title:'Progress, waiting, and confirmation', clauses:[
+    'Progress indicators can accelerate, decelerate, pause, and resume without providing a reliable measure of work. A percentage reflects what the interface currently wishes to communicate. It does not necessarily correspond to the amount of patience still required.',
+    'A request for confirmation may itself be followed by a request to confirm that confirmation. This sequence is considered a normal part of the demo. You may wonder whether the system heard you the first time. It did. It simply enjoys hearing you say it again.',
+    'Waiting periods are measured according to the clock in your current device. Staring at the number will not make it increase faster. Looking away may create the impression that it moved while you were not watching, which is a perfectly acceptable way to experience this page.',
+    'At some point, you may be asked to recall information you entered earlier. This is intended as a memory quiz, not a security feature. Please use a made-up password, and do not use a password from an account you actually care about.'
+  ], mark:'I acknowledge that a percentage can have feelings.'},
+  {title:'The concluding conclusion', clauses:[
+    'The word final, when used in a heading, is a stylistic flourish. A final step can contain several smaller steps. A final confirmation can have a final confirmation of its own. The visitor should interpret such language generously and avoid making appointments based on it.',
+    'If you locate every small acknowledgement in this document, scroll through the remaining text, remember your made-up details, and finish the process, you may receive a digital trophy and a downloadable Patience Pass. Neither has monetary value, though the patience they represent may feel expensive.',
+    'The trophy may be admired, celebrated, or shown to someone who has not yet attempted this process. The downloadable pass is yours to keep, while the break room is available in this tab after completion. Refreshing the page may cause the trophy to disappear, but the memory of reaching it should remain available without an internet connection.',
+    'This is the end of the demo terms. There is no hidden clause after this paragraph. Please take a moment to appreciate that this sentence is, for once, exactly as final as it sounds.'
+  ], mark:'I really did reach the end of the document.'}
 ];
 function renderTerms() {
   const chapters = termsChapters.map((chapter, chapterIndex) => `<section class="terms-chapter">
@@ -566,12 +566,12 @@ function renderTerms() {
     ${chapter.mark ? `<label class="terms-tiny-check"><input type="checkbox" class="terms-mark" data-expected="true" aria-label="${chapter.mark}"><span>${chapter.mark}</span></label>` : ''}
     ${chapter.trap ? `<label class="terms-tiny-check"><input type="checkbox" class="terms-mark" data-expected="false" aria-label="${chapter.trap}"><span>${chapter.trap}</span></label>` : ''}
   </section>`).join('');
-  frame('Review preview information','Read each section and record the relevant choices.',`
-    <div class="terms-topline"><span>PREVIEW INFORMATION</span><span>Scroll to read</span></div>
-    <div class="terms-box" id="terms" tabindex="0" aria-label="Preview information. Scroll through the document and review the small choices.">
-      <h3>Planning preview information</h3><p class="terms-effective">Local browser session · Preview edition</p>${chapters}
+  frame('One final review','Read carefully. Some of the small print wants an answer.',`
+    <div class="terms-topline"><span>TERMS OF USE</span><span>Scroll to read</span></div>
+    <div class="terms-box" id="terms" tabindex="0" aria-label="Demo terms. Scroll through the document and review the small choices.">
+      <h3>Terms of use</h3><p class="terms-effective">Effective whenever you opened this page · Demo edition</p>${chapters}
     </div>
-    <label class="check-row locked" id="agreementRow"><input id="agreement" type="checkbox" disabled> I have read the preview information.</label>
+    <label class="check-row locked" id="agreementRow"><input id="agreement" type="checkbox" disabled> I have read and agree to the demo terms.</label>
     <p class="form-notice" aria-live="polite"></p><button type="button" class="button button-primary full" id="termsContinue">Continue</button>`);
   const terms = panel.querySelector('#terms');
   const marks = [...panel.querySelectorAll('.terms-mark')];
@@ -595,10 +595,10 @@ function renderTerms() {
   });
 }
 function renderWaiting() {
-  frame('Preparing your planning space','Your preferences and verification are being reviewed.',`
-    <div class="loading-scene"><div class="loading-kicker">PLANNING SPACE SETUP</div><div class="loading-number" id="loadNumber">0%</div>
+  frame('Setting things up','We are getting everything ready for you.',`
+    <div class="loading-scene"><div class="loading-kicker">ACCOUNT SETUP</div><div class="loading-number" id="loadNumber">0%</div>
     <div class="loading-track" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-fill" id="loadFill"></div></div>
-    <p class="loading-caption" id="loadCaption" aria-live="polite">Reviewing your settings...</p><div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>`);
+    <p class="loading-caption" id="loadCaption" aria-live="polite">Carefully getting started...</p><div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>`);
   const dialog = document.createElement('dialog');
   dialog.id = 'certaintyDialog';
   dialog.className = 'certainty-dialog';
@@ -610,9 +610,9 @@ function renderWaiting() {
     panel.querySelector('.loading-track').setAttribute('aria-valuenow',String(value));
   };
   const confirmations = [
-    {eyebrow:'SETUP REVIEW', title:'Confirm your setup request', body:'Your planning preferences are ready to be submitted for this preview session.', button:'Confirm setup'},
-    {eyebrow:'SECONDARY REVIEW', title:'Confirm your previous choice', body:'A second confirmation is required before the planning space can open.', button:'Confirm again'},
-    {eyebrow:'FINAL REVIEW', title:'Complete setup?', body:'The preview has finished its last local check. Confirm once more to continue.', button:'Complete setup'}
+    {eyebrow:'A QUICK CONFIRMATION', title:'Are you sure you want to finish?', body:'Everything is ready. We just need to make sure you mean it.', button:'Yes, I’m sure'},
+    {eyebrow:'CONFIRMATION OF CONFIRMATION', title:'Are you sure you’re sure?', body:'We received your answer. Please confirm the answer to the confirmation.', button:'I’m still sure'},
+    {eyebrow:'A MOMENT LATER', title:'Still sure?', body:'We gave you a little time to reconsider. Your previous confirmations remain on file for this tab only.', button:'Yes. Finish it.'}
   ];
   function ask(index) {
     if (scene !== 'waiting') return;
@@ -622,19 +622,19 @@ function renderWaiting() {
     dialog.querySelector('#certaintyYes').addEventListener('click',()=>{
       dialog.close();
       if(index===0) schedule(()=>ask(1),350);
-      else if(index===1){panel.querySelector('#loadCaption').textContent='Finishing final review...';schedule(()=>ask(2),2600);}
-      else {setProgress(100);panel.querySelector('#loadCaption').textContent='Setup review complete.';schedule(()=>moveTo('quiz'),850);}
+      else if(index===1){panel.querySelector('#loadCaption').textContent='Giving that answer a moment to settle...';schedule(()=>ask(2),2600);}
+      else {setProgress(100);panel.querySelector('#loadCaption').textContent='Finally complete. Almost.';schedule(()=>moveTo('quiz'),850);}
     });
   }
   const phases = [
-    {duration:4800, start:0, end:24, caption:'Reviewing your settings...'},
-    {duration:1300, start:24, end:94, caption:'Preparing your course workspace...'},
-    {duration:4200, start:94, end:99, caption:'Completing initial checks...'},
-    {duration:1900, start:99, end:99, caption:'Waiting for the final check...'},
-    {duration:900, start:99, end:78, caption:'Revalidating your settings...'},
+    {duration:4800, start:0, end:24, caption:'Carefully getting started...'},
+    {duration:1300, start:24, end:94, caption:'Oh, now we’re moving.'},
+    {duration:4200, start:94, end:99, caption:'Almost finished...'},
+    {duration:1900, start:99, end:99, caption:'Just a moment at 99%...'},
+    {duration:900, start:99, end:78, caption:'Rechecking a few things...'},
     {duration:3300, start:78, end:96, caption:'Reconfirming your preferences...'},
-    {duration:4300, start:96, end:99, caption:'Completing the second review...'},
-    {duration:2500, start:99, end:99, caption:'Waiting for setup confirmation...'}
+    {duration:4300, start:96, end:99, caption:'This is taking longer than expected...'},
+    {duration:2500, start:99, end:99, caption:'One last tiny thing. Again.'}
   ];
   const total = phases.reduce((sum,phase)=>sum+phase.duration,0);
   const started = performance.now();
@@ -652,20 +652,20 @@ function renderWaiting() {
     if(performance.now()-started>=total){
       clearInterval(waitTimer);
       setProgress(99);
-      panel.querySelector('#loadCaption').textContent='Your confirmation is required to continue.';
+      panel.querySelector('#loadCaption').textContent='Waiting for your final confirmation...';
       schedule(()=>ask(0),450);
     }
   },90);
 }
 function renderQuiz() {
   if(!enteredDetails) return moveTo('signup');
-  frame('Confirm your details','Re-enter the details used for this preview session.',`
-    <div class="quiz-badge"><span aria-hidden="true">✦</span> FINAL ACCOUNT CHECK</div>
+  frame('A quick memory check','You entered these details a while ago. Do you still remember them?',`
+    <div class="quiz-badge"><span aria-hidden="true">✦</span> THE ACTUAL FINAL STEP</div>
     <form id="quizForm" novalidate>
-      <div class="field"><label for="rememberedEmail">Email address</label><input id="rememberedEmail" type="email" placeholder="Re-enter the address from setup" autocomplete="off" required></div>
-      <div class="field"><label for="rememberedPassword">Preview password</label><div class="input-wrap"><input id="rememberedPassword" type="password" placeholder="Re-enter your made-up password" autocomplete="off" required><button type="button" class="eye" data-for="rememberedPassword" aria-label="Show remembered password">◉</button></div></div>
-      <p class="quiz-hint">Use the same made-up details from setup. Your answers remain in this tab and are cleared when you finish.</p>
-      <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Open my planning space</button>
+      <div class="field"><label for="rememberedEmail">The email address you used</label><input id="rememberedEmail" type="email" placeholder="From memory, please" autocomplete="off" required></div>
+      <div class="field"><label for="rememberedPassword">Your made-up password</label><div class="input-wrap"><input id="rememberedPassword" type="password" placeholder="No peeking" autocomplete="off" required><button type="button" class="eye" data-for="rememberedPassword" aria-label="Show remembered password">◉</button></div></div>
+      <p class="quiz-hint">Paste is unavailable, naturally. Your answer stays in this tab and is cleared when you finish.</p>
+      <p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Claim my reward</button>
     </form>`);
   attachEyes();
   const email = panel.querySelector('#rememberedEmail');
@@ -676,7 +676,7 @@ function renderQuiz() {
     event.preventDefault();
     if(email.value.trim().toLowerCase()!==enteredDetails.email || password.value!==enteredDetails.password){
       password.value='';
-      notice('Those details do not match the ones entered during setup.');
+      notice('Not quite. Think back to what you entered at the start.');
       password.focus();
       return;
     }
@@ -699,8 +699,7 @@ function downloadPatiencePass() {
 }
 function renderSuccess() {
   if(!awardId) awardId=Math.random().toString(36).slice(2,8).toUpperCase();
-  frame('Surprise. That was mildly infuriating.','The course finder setup was a patience test. You made it to the real ending.',`
-    <div class="reveal-banner"><strong>THE REVEAL</strong><p>No course account was created. Every extra check was part of the challenge.</p></div>
+  frame('The Trophy of Patience','You made it through every last check.',`
     <div class="trophy-stage"><div class="trophy-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="trophy-ribbon"><span aria-hidden="true">✦</span> RARE ACHIEVEMENT UNLOCKED <span aria-hidden="true">✦</span></div>
       <div class="trophy-halo"><svg class="trophy-laurel" viewBox="0 0 240 240" aria-hidden="true"><g fill="none" stroke="#d3a04a" stroke-width="2.5"><path d="M74 202C20 176 17 98 67 46"/><path d="M166 202c54-26 57-104 7-156"/></g><g fill="#d9aa56"><ellipse cx="46" cy="171" rx="7" ry="16" transform="rotate(-39 46 171)"/><ellipse cx="29" cy="140" rx="7" ry="15" transform="rotate(-18 29 140)"/><ellipse cx="27" cy="108" rx="7" ry="15" transform="rotate(8 27 108)"/><ellipse cx="38" cy="78" rx="7" ry="15" transform="rotate(30 38 78)"/><ellipse cx="56" cy="54" rx="7" ry="15" transform="rotate(50 56 54)"/><ellipse cx="194" cy="171" rx="7" ry="16" transform="rotate(39 194 171)"/><ellipse cx="211" cy="140" rx="7" ry="15" transform="rotate(18 211 140)"/><ellipse cx="213" cy="108" rx="7" ry="15" transform="rotate(-8 213 108)"/><ellipse cx="202" cy="78" rx="7" ry="15" transform="rotate(-30 202 78)"/><ellipse cx="184" cy="54" rx="7" ry="15" transform="rotate(-50 184 54)"/></g></svg><svg class="trophy-art" viewBox="0 0 360 360" role="img" aria-label="Large engraved golden trophy">
@@ -793,55 +792,13 @@ function renderPrize() {
   panel.querySelector('#backToTrophy').addEventListener('click',()=>moveTo('success'));
 }
 function renderLogin() {
-  frame('Sign in to your planning space','Use preview details only. No real account is connected.',`
-    <form id="loginForm"><div class="field"><label for="loginEmail">Email address</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="off" required></div><div class="field"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Made-up password only" autocomplete="off" required></div><p class="demo-hint">Preview only. Never enter a password from a real account.</p><p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Sign in</button></form><p class="helper">New here? <button type="button" class="link-button" id="backToSignup">Create a planning space</button></p>`);
-  panel.querySelector('#loginForm').addEventListener('submit',event=>{event.preventDefault();panel.querySelector('#loginPassword').value='';notice('Sign-in is unavailable in this preview. Create a planning space to try the setup.','info');});
+  frame('Welcome back','Sign in to continue.',`
+    <form id="loginForm"><div class="field"><label for="loginEmail">Email address</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="off" required></div><div class="field"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Made-up password only" autocomplete="off" required></div><p class="demo-hint">This is a demo. Never enter a password from a real account.</p><p class="form-notice" aria-live="polite"></p><button class="button button-primary full" type="submit">Log in</button></form><p class="helper">New here? <button type="button" class="link-button" id="backToSignup">Create an account</button></p>`);
+  panel.querySelector('#loginForm').addEventListener('submit',event=>{event.preventDefault();panel.querySelector('#loginPassword').value='';notice('There is no account to log in to. This is a demo.','info');});
   panel.querySelector('#backToSignup').addEventListener('click',()=>moveTo('signup'));
 }
-const studyAreas = [
-  {code:'IT',name:'Information technology',description:'Software, data and computing pathways',keywords:'it technology computing software data cyber'},
-  {code:'HE',name:'Health & nursing',description:'Health sciences and care professions',keywords:'health nursing medicine care'},
-  {code:'BU',name:'Business & commerce',description:'Management, finance and marketing',keywords:'business commerce management finance marketing'},
-  {code:'EN',name:'Engineering',description:'Design, build and solve practical problems',keywords:'engineering design construction'},
-  {code:'ED',name:'Education',description:'Teaching and learning pathways',keywords:'education teaching school'},
-  {code:'CA',name:'Creative arts',description:'Design, media and creative practice',keywords:'creative arts design media'}
-];
-function paintStudyAreas(query='') {
-  const results=document.querySelector('#courseResults');
-  const term=query.trim().toLowerCase();
-  const matches=studyAreas.map((area,index)=>({...area,index})).filter(area=>!term||`${area.name} ${area.keywords}`.toLowerCase().includes(term));
-  const displayed=term?matches:matches.slice(0,3);
-  results.innerHTML=displayed.length?displayed.map(area=>`<button type="button" class="preview-row" data-area="${area.index}" aria-label="Save ${area.name} to a planning space"><span class="course-icon">${area.code}</span><span><strong>${area.name}</strong><small>${area.description}</small></span><span class="preview-arrow" aria-hidden="true">→</span></button>`).join(''):'<p class="empty-results">No sample study area matched. Try a broader search.</p>';
-  results.querySelectorAll('[data-area]').forEach(button=>button.addEventListener('click',()=>{
-    results.querySelectorAll('.preview-row').forEach(row=>row.classList.remove('is-selected'));
-    button.classList.add('is-selected');
-    const area=studyAreas[Number(button.dataset.area)];
-    const notice=document.querySelector('#selectionNotice');
-    notice.textContent=`Create your planning space to keep ${area.name} on your shortlist.`;
-    notice.hidden=false;
-    if(scene==='signup'||scene==='login') document.querySelector('.form-section').scrollIntoView({behavior:'smooth',block:'start'});
-  }));
-}
 function updateIdentity() {
-  const revealed=scene==='success'||scene==='prize';
-  document.body.classList.toggle('revealed',revealed);
-  document.title=revealed?'You made it — mildly':'Sydney Course Finder | Your planning space';
-  document.querySelector('link[rel="icon"]').href=revealed?'./mildly-favicon.svg':'./favicon.svg';
-  document.querySelector('.brand').setAttribute('aria-label',revealed?'mildly home and restart':'Sydney Course Finder home and restart');
-  document.querySelector('#brandName').textContent=revealed?'mildly':'Sydney Course Finder';
-  document.querySelector('#workspaceLabel').textContent=revealed?'THE PATIENCE TEST':'COURSE PLANNING SPACE';
-  document.querySelector('#welcomeTitle').textContent=revealed?'The longest way to absolutely nowhere.':'Find a Sydney course that fits.';
-  document.querySelector('#welcomeDescription').textContent=revealed?'You survived the forms, the checks and every “one last thing.” Your patience deserves a prize.':'Explore study areas, compare your options and keep a shortlist. Fewer open tabs would be nice, wouldn’t it?';
-  document.querySelector('#coursePreview').hidden=revealed;
-  document.querySelector('#revealSide').hidden=!revealed;
-  document.querySelector('#footerBrand').textContent=revealed?`© ${currentYear} mildly`:`© ${currentYear} Sydney Course Finder preview`;
-  document.querySelector('#footerTagline').textContent=revealed?'Made for the mildly patient.':'Local preview · No account is created';
-  document.querySelector('#helpButton').textContent=revealed?'About this demo':'About';
-  document.querySelector('#coursesButton').textContent=revealed?'Start over':'Courses';
-  document.querySelector('#footerHelp').textContent=revealed?'About this demo':'Privacy & preview';
-  document.querySelector('#loginButton').textContent=revealed?'Start again':'Sign in';
-  document.querySelector('#infoTitle').textContent=revealed?'About this demo':'About this preview';
-  document.querySelector('#infoDescription').textContent=revealed?'This is a parody of online signup rituals. The course finder screen was a disguise for the challenge. No account was created, and your made-up email and password were cleared.':'This is a simulated planning space. Use a made-up email and password only. Your entries stay in this tab for the final confirmation and are then cleared; they are not sent to a server or used to create an account.';
+  document.title = scene === 'success' || scene === 'prize' ? 'You made it — mildly' : 'Create your account — mildly';
 }
 function render() {
   updateIdentity();
@@ -851,18 +808,6 @@ const dialog=document.querySelector('#infoDialog');
 for(const id of ['helpButton','footerHelp']) document.getElementById(id).addEventListener('click',()=>dialog.showModal());
 for(const id of ['closeDialog','dialogOkay']) document.getElementById(id).addEventListener('click',()=>dialog.close());
 document.querySelector('#loginButton').addEventListener('click',()=>moveTo(scene==='success'||scene==='prize'?'signup':'login'));
-document.querySelector('#coursesButton').addEventListener('click',()=>{
-  if(scene==='success'||scene==='prize') return moveTo('signup');
-  document.querySelector('#coursePreview').scrollIntoView({behavior:'smooth',block:'center'});
-  document.querySelector('#courseQuery').focus({preventScroll:true});
-});
-document.querySelector('#courseSearchForm').addEventListener('submit',event=>{
-  event.preventDefault();
-  paintStudyAreas(document.querySelector('#courseQuery').value);
-  document.querySelector('#selectionNotice').hidden=true;
-});
-document.querySelector('#courseQuery').addEventListener('search',()=>paintStudyAreas(document.querySelector('#courseQuery').value));
-paintStudyAreas();
 render();
 refreshDailyDeenReference();
 refreshWordleOpposites();
