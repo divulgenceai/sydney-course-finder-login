@@ -102,7 +102,7 @@ const passwordRules = [
   {key:'wordle',text:'Include an opposite of today’s Wordle answer.',source:{label:'Play Wordle',url:'https://www.nytimes.com/games/wordle/index.html'},test:value=>wordleOpposites.some(opposite=>value.toLowerCase().includes(opposite))||(wordleStatus==='unavailable'&&/^[a-z]{2,24}$/i.test(wordleFallback)&&value.toLowerCase().includes(wordleFallback.toLowerCase()))},
   {key:'daily-deen',text:'Include today’s Daily Deen verse reference (Surah:Ayah).',source:{label:'Open Daily Deen',url:'https://dailydeen.zubibair.com/'},test:value=>value.includes(dailyDeenReference)},
   {key:'book',text:'Include the title of your favourite book, without spaces or punctuation.',test:value=>compact(favoriteBook).length>=2&&value.toLowerCase().includes(compact(favoriteBook))},
-  {text:()=>`Make every digit in the password add up to ${digitTarget()}.`,test:value=>digitSum(value)===digitTarget()}
+  {text:()=>`Make every digit in the password add up to ${digitTarget()}, or include the total HSC English Standard Paper 1 time in minutes (including reading time).`,source:{label:'Check exam times',url:'https://www.nsw.gov.au/education-and-training/nesa/curriculum/english/english-standard-stage-6-2017/assessment-and-reporting'},test:value=>digitSum(value)===digitTarget()||value.includes('100')}
 ];
 const wordleRuleIndex = passwordRules.findIndex(rule=>rule.key==='wordle');
 const bookRuleIndex = passwordRules.findIndex(rule=>rule.key==='book');
@@ -266,6 +266,11 @@ const shapeQuestions = [
   {name:'every triangle',detail:'Turned triangles are still triangles.',answer:[0,2,4,8]},
   {name:'only the blue triangles',detail:'A blue diamond is not a triangle.',answer:[0,4,8]}
 ];
+const mathQuestions = [
+  {equation:'8 <span>+</span> 5 <span>=</span> ?',answer:'13',hsc:'How many minutes is the HSC English Standard Paper 1, including reading time?',hscAnswer:'100'},
+  {equation:'7 <span>×</span> 6 <span>=</span> ?',answer:'42',hsc:'How many minutes is the HSC English Standard Paper 2, including reading time?',hscAnswer:'125'},
+  {equation:'27 <span>−</span> 9 <span>=</span> ?',answer:'18',hsc:'How many minutes are both HSC English Standard papers combined, including reading time?',hscAnswer:'225'}
+];
 function shapeArt(item) {
   const forms = {
     triangle:'<polygon points="50,14 85,79 15,79"/>', circle:'<circle cx="50" cy="50" r="31"/>',
@@ -277,7 +282,7 @@ function shapeArt(item) {
 function renderCaptcha() {
   let challengeIndex = 0;
   let shapeRound = 0;
-  let equationDone = false;
+  let mathRound = 0;
   let chosen = new Set();
   let refreshOffset = 0;
   frame('Confirm it’s you','We just need to run a quick security check.',`
@@ -297,7 +302,7 @@ function renderCaptcha() {
     chosen.clear();
     if(challengeIndex<challenges.length) paint();
     else if(shapeRound<shapeQuestions.length) paintShapes();
-    else if(!equationDone) paintEquation();
+    else if(mathRound<mathQuestions.length) paintEquation();
     else paintFinal();
     dialog.showModal();
   });
@@ -356,15 +361,17 @@ function renderCaptcha() {
       else paintEquation();
     });
   }
-  function paintEquation() {
-    dialog.innerHTML=`<div class="captcha-dialog-header"><span>Final verification check</span><strong>Solve this equation</strong><small>Enter the result to continue.</small></div>
-      <form class="captcha-math" id="captchaMath" novalidate><div class="captcha-math-problem">8 <span>+</span> 5 <span>=</span> ?</div><label for="mathAnswer">Your answer</label><input id="mathAnswer" type="number" inputmode="numeric" autocomplete="off" placeholder="Enter a number" required><p class="captcha-message" role="status" aria-live="polite"></p><button type="submit" class="captcha-verify">VERIFY ANSWER</button></form>`;
+  function paintEquation(message = '') {
+    const current = mathQuestions[mathRound];
+    dialog.innerHTML=`<div class="captcha-dialog-header"><span>Additional verification check</span><strong>Pick a maths question</strong><small>Answer either option to continue.</small></div>
+      <form class="captcha-math" id="captchaMath" novalidate><div class="captcha-math-problem">${current.equation}</div><div class="captcha-math-or">OR</div><p class="captcha-math-alternative">${current.hsc} <a href="https://www.nsw.gov.au/education-and-training/nesa/curriculum/english/english-standard-stage-6-2017/assessment-and-reporting" target="_blank" rel="noopener noreferrer">Check exam times ↗</a></p><label for="mathAnswer">Your answer to either question</label><input id="mathAnswer" type="number" inputmode="numeric" autocomplete="off" placeholder="Enter a number" required><p class="captcha-message" role="status" aria-live="polite">${message}</p><button type="submit" class="captcha-verify">VERIFY ANSWER</button></form>`;
     dialog.querySelector('#captchaMath').addEventListener('submit',event=>{
       event.preventDefault();
       const answer=dialog.querySelector('#mathAnswer');
-      if(answer.value.trim()!=='13') {answer.value='';dialog.querySelector('.captcha-message').textContent='That answer did not add up. Try again.';answer.focus();return;}
-      equationDone=true;
-      paintFinal();
+      if(answer.value.trim()!==current.answer && answer.value.trim()!==current.hscAnswer) {answer.value='';dialog.querySelector('.captcha-message').textContent='That does not match either answer. Try again.';answer.focus();return;}
+      mathRound++;
+      if(mathRound<mathQuestions.length) paintEquation('Thanks. One more number, please.');
+      else paintFinal();
     });
   }
   function paintFinal() {
