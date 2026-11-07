@@ -1,6 +1,12 @@
 {
-  "date": "2026-11-07",
+  "date": "2026-11-08",
   "opposites": [
-    "notprate"
+    "end",
+    "ending",
+    "intermediate",
+    "last",
+    "middle",
+    "notfirst",
+    "second"
   ]
 }
